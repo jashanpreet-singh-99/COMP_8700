@@ -20,6 +20,12 @@ public class BoardManager : MonoBehaviour
     [SerializeField] TMP_InputField MutationRate;
     [SerializeField] TMP_InputField PopulationSize;
 
+    [SerializeField] TMP_InputField Temperature;
+    [SerializeField] TMP_InputField CoolingFactor;
+
+    [SerializeField] TMP_InputField IterationNum;
+    [SerializeField] TMP_InputField StateNum;
+
     [SerializeField] Button randomBoardBtn;
     [SerializeField] Button customBoardBtn;
     [SerializeField] Button calculateHeuristicBtn;
@@ -27,7 +33,16 @@ public class BoardManager : MonoBehaviour
     [SerializeField] Button geneticAlgorithm;
     [SerializeField] Button pGeneticAlgorithm;
 
+
     [SerializeField] Button backBtn;
+
+    [SerializeField] Button simulatedAnnealing;
+    [SerializeField] Button annealingRun;
+    [SerializeField] Button annealingBack;
+
+    [SerializeField] Button localBeam;
+    [SerializeField] Button beamRun;
+    [SerializeField] Button beamBack;
 
     [SerializeField] TextMeshProUGUI boardConfigTxt;
     [SerializeField] TextMeshProUGUI messageTxt;
@@ -37,6 +52,8 @@ public class BoardManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI geneticTitleTxt;
 
     [SerializeField] GameObject geneticPanel;
+    [SerializeField] GameObject annealingPanel;
+    [SerializeField] GameObject beamPanel;
 
     [SerializeField] int x;
     [SerializeField] int y;
@@ -56,6 +73,8 @@ public class BoardManager : MonoBehaviour
     private int generation = 1;
 
     GeneticAlgorithm algorithmG;
+    SimulatedAnnealing sAAlgo;
+    LocalBeam lBAlgo;
 
     List<Tuple<string[], int, int>> InitPopulation = new List<Tuple<string[], int, int>>();
 
@@ -71,12 +90,28 @@ public class BoardManager : MonoBehaviour
         geneticAlgorithm.onClick.AddListener(geneticAlgorithmPanel);
         pGeneticAlgorithm.onClick.AddListener(geneticAlgorithmRun);
         backBtn.onClick.AddListener(exitAllPanels);
+        
+        simulatedAnnealing.onClick.AddListener(simulatedAnnealingPanel);
+        annealingRun.onClick.AddListener(simulatedAnnealingRun);
+        annealingBack.onClick.AddListener(exitAllPanels);
+        localBeam.onClick.AddListener(localBeamPanel);
+        beamRun.onClick.AddListener(localBeamRun);
+        beamBack.onClick.AddListener(exitAllPanels);
 
         MutationRate.text = 5 + "";
         PopulationSize.text = 10 + "";
 
+        Temperature.text = 120 + "";
+        CoolingFactor.text = 0.5 + "";
+
+        IterationNum.text = 50000 + "";
+        StateNum.text = 5 + "";
+
         MUTATION_RATE = mutationRate;
         algorithmG = new GeneticAlgorithm();
+        sAAlgo = new SimulatedAnnealing();
+        lBAlgo = new LocalBeam();
+
         Debug.Log("Fac : " + getChildLimit(10));
     }
 
@@ -453,8 +488,43 @@ public class BoardManager : MonoBehaviour
         if (geneticPanel.activeSelf) {
             geneticPanel.SetActive(false);
         }
+        if (annealingPanel.activeSelf) {
+            annealingPanel.SetActive(false);
+        }
+        if (beamPanel.activeSelf) {
+            beamPanel.SetActive(false);
+        }
     }
-    
+    private void simulatedAnnealingPanel() {
+        annealingPanel.SetActive(true);
+    }
+    private void simulatedAnnealingRun() {
+        SimulatedAnnealing run = new SimulatedAnnealing();
+        float temperature = float.Parse(Temperature.text), 
+            coolingFactor = float.Parse(CoolingFactor.text);
+        int[] res = run.solve(8, 50000, temperature, coolingFactor);
+        clearBoard();
+        for (int i = 0; i < 8; i++) {
+            //Debug.Log(i + ":" + res[i]);
+            queensObj[i] = putQueenAt(i + 1, res[i]);
+        }        
+    }
+    private void localBeamPanel() {
+        beamPanel.SetActive(true);
+    }
+    private void localBeamRun() {
+        LocalBeam run = new LocalBeam();
+        int INum = System.Convert.ToInt32(IterationNum.text),
+            SNum = System.Convert.ToInt32(StateNum.text);
+        int[] res = run.solve(8, INum, SNum);
+        clearBoard();
+        for (int i = 0; i < 8; i++) {
+            //Debug.Log(i + ":" + res[i] );
+            queensObj[i] = putQueenAt(i + 1, res[i]+1);
+        }
+    }
+
+
 }
 // 81163444
 // 56745676
