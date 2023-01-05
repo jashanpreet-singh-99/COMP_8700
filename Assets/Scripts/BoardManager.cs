@@ -112,7 +112,7 @@ public class BoardManager : MonoBehaviour
         sAAlgo = new SimulatedAnnealing();
         lBAlgo = new LocalBeam();
 
-        Debug.Log("Fac : " + getChildLimit(10));
+        //Debug.Log("Fac : " + getChildLimit(10));
     }
 
     void Update()
@@ -149,7 +149,7 @@ public class BoardManager : MonoBehaviour
     void generateCustomBoard() {
 
         clearBoard();
-        Debug.Log("String : " + customBoardConfig.text);
+        //Debug.Log("String : " + customBoardConfig.text);
         string data = customBoardConfig.text;
         if (data.Length < 8) {
             messageTxt.text = "Invalid board, Enter between 1-8.";
@@ -163,7 +163,7 @@ public class BoardManager : MonoBehaviour
                 messageTxt.color = new Color(1,0,0,1);
                 break;
             }
-            Debug.Log("num : " + i + " : " + num);
+            //Debug.Log("num : " + i + " : " + num);
             boardConfig[i-1] = num.ToString();
             queensObj[i-1] = putQueenAt(i, num);
         }
@@ -498,17 +498,29 @@ public class BoardManager : MonoBehaviour
     private void simulatedAnnealingPanel() {
         annealingPanel.SetActive(true);
     }
-    private void simulatedAnnealingRun() {
+   private void simulatedAnnealingRun() {
         SimulatedAnnealing run = new SimulatedAnnealing();
-        float temperature = float.Parse(Temperature.text), 
+        float temperature = float.Parse(Temperature.text),
             coolingFactor = float.Parse(CoolingFactor.text);
+        /*
         int[] res = run.solve(8, 50000, temperature, coolingFactor);
         clearBoard();
         for (int i = 0; i < 8; i++) {
             //Debug.Log(i + ":" + res[i]);
             queensObj[i] = putQueenAt(i + 1, res[i]);
-        }        
+        }
+        */
+        List<int[]> res = new List<int[]>();
+        for (int i = 0; i < 1000; i++) {
+            int[] state = run.solve(8, 50000, temperature, coolingFactor);                   
+            if (state != null && !res.Any(x => x.SequenceEqual(state))) {
+                res.Add(state);
+            }
+        }
+        Debug.Log(res.Count);
     }
+
+
     private void localBeamPanel() {
         beamPanel.SetActive(true);
     }

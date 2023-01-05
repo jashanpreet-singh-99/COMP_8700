@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SimulatedAnnealing : MonoBehaviour {
-    
+
     public int[] solve(int n, int maxNumOfIterations, float temperature, float coolingFactor) {
-        
+
         int[] randomState = Utils.generateRandomState(n);
 
         int costToBeat = Utils.getHeuristicCost(randomState);
@@ -15,17 +15,26 @@ public class SimulatedAnnealing : MonoBehaviour {
             costToBeat = Utils.getHeuristicCost(randomState);
             temperature = Mathf.Max(temperature * coolingFactor, 0.01f);
         }
-
-        return costToBeat == 0 ? randomState : null; 
+        int[] ans = new int[n];
+        for (int i = 0; i < n; i++) {
+            ans[i] = randomState[i] + 1;
+        }
+        return costToBeat == 0 ? ans : null;
     }
 
     private int[] makeMove(int[] r, int costToBeat, float temp) {
         int n = r.Length;
-        
+
 
         while (true) {
             int nCol = (int)(Random.Range(0.0f, 1.0f) * n);
-            int nRow = (int)(Random.Range(0.0f, 1.0f) * n);
+            int nRow = (int)(Random.Range(0.0f, 1.0f) * n);  
+            if(nCol >= n ) {
+                nCol = (int)(Random.Range(0.0f, 1.0f) * n);
+            }
+            if (nRow >= n) {
+                nRow = (int)(Random.Range(0.0f, 1.0f) * n);
+            }
             int tmpRow = r[nCol];
             r[nCol] = nRow;
 
@@ -36,12 +45,12 @@ public class SimulatedAnnealing : MonoBehaviour {
             int dE = costToBeat - cost;
             double acceptProb = Mathf.Min(1, Mathf.Exp(dE / temp));
 
-            if (UnityEngine.Random.Range(0.0f, 1.0f) < acceptProb)
+            if (Random.Range(0.0f, 1.0f) < acceptProb)
                 return r;
 
             r[nCol] = tmpRow;
         }
 
-    }   
+    }
 
 }
